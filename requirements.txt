@@ -1,3 +1,4 @@
+genanki==0.13.0
 pip==22.2.2
 setuptools==65.3.0
 xlrd==2.0.1
