@@ -14,7 +14,6 @@ class Question:
 
 def _extract_questions(question_sheet):
     current_row = 0
-    questions = []
     for row in range(question_sheet.nrows):
         question_id = question_sheet.cell_value(rowx=row, colx=0)
         if question_id == '':
@@ -40,14 +39,11 @@ def _extract_questions(question_sheet):
             answer_index += 1
 
         # Build question
-        questions.append(
-            Question(
-                wording=question_sheet.cell_value(rowx=row, colx=1),
-                possible_answers=possible_answers,
-                correct_answer_indices=correct_answers_indices
-            )
+        yield Question(
+            wording=question_sheet.cell_value(rowx=row, colx=1),
+            possible_answers=possible_answers,
+            correct_answer_indices=correct_answers_indices
         )
-    return questions
 
 
 def _main():
