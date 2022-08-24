@@ -25,7 +25,7 @@ def _extract_questions(question_sheet):
         answers_start_column = 2
         for current_col in range(answers_start_column, question_sheet.row_len(row), 2):
             answer = question_sheet.cell_value(rowx=row, colx=current_col)
-            possible_answers.append(answer)
+            possible_answers.append(str(answer))
 
         # Correct answers
         correct_answers_indices = []
