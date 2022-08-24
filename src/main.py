@@ -2,6 +2,7 @@ import argparse
 from dataclasses import dataclass
 from typing import List
 
+import genanki
 import xlrd
 
 
@@ -34,7 +35,7 @@ def _extract_questions(question_sheet):
             points = question_sheet.cell_value(rowx=row, colx=current_col)
             if str(points).strip() == '':
                 break
-            if points < 0:
+            if points > 0:
                 correct_answers_indices.append(answer_index)
             answer_index += 1
 
@@ -49,6 +50,7 @@ def _extract_questions(question_sheet):
 def _main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_file_path')
+    parser.add_argument('output_file_path')
     parser.add_argument('--sheet', default='QCM complet Français')
     args = parser.parse_args()
 
@@ -56,7 +58,45 @@ def _main():
     question_sheet = workbook.sheet_by_name(args.sheet)
     questions = _extract_questions(question_sheet)
 
-    questions
+    my_model = genanki.Model(
+        1849442606,
+        'FFVL QCM Model',
+        fields=[
+            {'name': 'Question'},
+            {'name': 'PossibleAnswer1'},
+            {'name': 'PossibleAnswer2'},
+            {'name': 'PossibleAnswer3'},
+            {'name': 'PossibleAnswer4'},
+            {'name': 'CorrectedAnswer1'},
+            {'name': 'CorrectedAnswer2'},
+            {'name': 'CorrectedAnswer3'},
+            {'name': 'CorrectedAnswer4'},
+        ],
+        templates=[
+            {
+                'name': 'Card 1',
+                'qfmt': '{{Question}}<br>' + '<br>'.join(['{{PossibleAnswer' + str(i) + '}}' for i in range(1, 5)]),
+                'afmt': '<hr id="answer">' + '<br>'.join(['{{CorrectedAnswer' + str(i) + '}}' for i in range(1, 5)])
+            },
+        ]
+    )
+
+    my_deck = genanki.Deck(
+        1929807668  ,
+        'FFVL QCM Brevet Pilote'
+    )
+    for question in questions:
+        fields = [question.wording]
+        fields += question.possible_answers
+        for i, answer in enumerate(question.possible_answers):
+            if i in question.correct_answer_indices:
+                field = f'<p style="color:MediumSeaGreen;">{answer}</p>'
+            else:
+                field = f'<p style="color:Tomato;"><strike>{answer}</strike></p>'
+            fields.append(field)
+        my_deck.add_note(genanki.Note(model=my_model, fields=fields))
+
+    genanki.Package(my_deck).write_to_file(args.output_file_path)
 
 
 if __name__ == '__main__':
