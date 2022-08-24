@@ -75,24 +75,29 @@ def _main():
         templates=[
             {
                 'name': 'Card 1',
-                'qfmt': '{{Question}}<br>' + '<br>'.join(['{{PossibleAnswer' + str(i) + '}}' for i in range(1, 5)]),
-                'afmt': '<hr id="answer">' + '<br>'.join(['{{CorrectedAnswer' + str(i) + '}}' for i in range(1, 5)])
+                'qfmt': '<b>{{Question}}</b><br>' + '<br>'.join(['{{PossibleAnswer' + str(i) + '}}' for i in range(1, 5)]),
+                'afmt': '<b>{{Question}}</b><hr id="answer"><br>' + '<br>'.join(['{{CorrectedAnswer' + str(i) + '}}' for i in range(1, 5)]) + '</ul>'
             },
         ]
     )
 
     my_deck = genanki.Deck(
-        1929807668  ,
+        1929807668,
         'FFVL QCM Brevet Pilote'
     )
     for question in questions:
         fields = [question.wording]
-        fields += question.possible_answers
         for i, answer in enumerate(question.possible_answers):
-            if i in question.correct_answer_indices:
-                field = f'<p style="color:MediumSeaGreen;">{answer}</p>'
+            fields.append(f'{i + 1}. {answer}' if answer != '' else '')
+        for i, answer in enumerate(question.possible_answers):
+            if answer == '':
+                field = ''
             else:
-                field = f'<p style="color:Tomato;"><strike>{answer}</strike></p>'
+                answer = f'{i + 1}. {answer}'
+                if i in question.correct_answer_indices:
+                    field = f'<p style="color:MediumSeaGreen;">{answer}</p>'
+                else:
+                    field = f'<p style="color:Tomato;"><strike>{answer}</strike></o>'
             fields.append(field)
         my_deck.add_note(genanki.Note(model=my_model, fields=fields))
 
